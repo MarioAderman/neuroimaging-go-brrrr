@@ -21,6 +21,8 @@ The Hugging Science community is working together to accelerate this. This docum
 | [#7874](https://github.com/huggingface/datasets/pull/7874) | Nifti visualization support | MERGED | Nov 19, 2025 |
 | [#7878](https://github.com/huggingface/datasets/pull/7878) | Replace papaya with NiiVue | MERGED | Nov 21, 2025 |
 
+> **Note**: While NIfTI support is merged in the `datasets` library, the HuggingFace Hub dataset viewer may lag behind or require dataset regeneration to fully support the new feature type.
+
 ### What's Still Pending (needs community push)
 
 | PR | Title | Status | Author |
@@ -72,9 +74,13 @@ We've been building two complementary pipelines:
 │  Purpose: Coordinate community efforts to accelerate HF neuroimaging    │
 │                                                                          │
 │  Current contents:                                                       │
-│  ├── scripts/push_to_hub_ds004884_full.py                               │
-│  ├── tools/bids-neuroimaging/  (HF Space visualization)                 │
-│  └── README.md                 (resource links)                         │
+│  ├── scripts/                                                            │
+│  │   ├── download_ds004884.sh                                            │
+│  │   └── push_to_hub_ds004884_full.py                                    │
+│  ├── tools/                                                              │
+│  │   ├── arc-aphasia-bids/                                               │
+│  │   └── bids-neuroimaging/  (HF Space visualization)                    │
+│  └── README.md                                                           │
 └─────────────────────────────────────────────────────────────────────────┘
                                     ▲
                                     │ (consolidates)
@@ -187,9 +193,10 @@ neuroimaging-go-brrrr/
 
 **Cons:**
 
-- Larger repository size
+- Larger repository size (e.g., `bids-neuroimaging` Space has 400MB parquet file)
 - More complex release management
 - Migration effort required
+- LFS/size constraints make some assets unsuitable for GitHub
 
 ### Option B: Hub with Linked Repositories
 
