@@ -5,6 +5,7 @@ These tests verify that the CLI is properly wired up and commands are registered
 without actually running the full dataset processing pipelines.
 """
 
+import re
 from pathlib import Path
 
 from typer.testing import CliRunner
@@ -12,6 +13,11 @@ from typer.testing import CliRunner
 from bids_hub.cli import app
 
 runner = CliRunner()
+
+
+def strip_ansi(text: str) -> str:
+    """Remove ANSI escape codes from text."""
+    return re.sub(r"\x1b\[[0-9;]*m", "", text)
 
 
 class TestCliHelp:
@@ -29,11 +35,12 @@ class TestCliHelp:
     def test_build_help(self) -> None:
         """Test that arc build --help works."""
         result = runner.invoke(app, ["arc", "build", "--help"])
+        stdout = strip_ansi(result.stdout)
 
         assert result.exit_code == 0
-        assert "ARC" in result.stdout or "arc" in result.stdout.lower()
-        assert "--hf-repo" in result.stdout
-        assert "--dry-run" in result.stdout
+        assert "ARC" in stdout or "arc" in stdout.lower()
+        assert "--hf-repo" in stdout
+        assert "--dry-run" in stdout
 
     def test_info_help(self) -> None:
         """Test that arc info --help works."""

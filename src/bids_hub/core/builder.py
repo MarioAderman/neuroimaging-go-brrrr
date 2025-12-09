@@ -200,7 +200,7 @@ def push_dataset_to_hub(
                     path_in_repo=f"data/{shard_fname}",
                     repo_id=config.hf_repo_id,
                     repo_type="dataset",
-                    commit_message=f"Upload shard {i+1}/{num_shards}",
+                    commit_message=f"Upload shard {i + 1}/{num_shards}",
                 )
             except Exception:
                 logger.exception("Failed to upload shard %d", i)
