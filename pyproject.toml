@@ -101,5 +101,5 @@ warn_unused_ignores = true
 [tool.uv.sources]
 # CRITICAL: Pin to specific commit until upstream PR #7896 is merged.
 # PyPI stable has embed_table_storage bug causing SIGKILL on Sequence(Nifti()) after ds.shard()
-# See UPSTREAM_BUG.md for full details.
+# See docs/TODO.md for tracking.
 datasets = { git = "https://github.com/huggingface/datasets.git", rev = "004a5bf4addd9293d6d40f43360c03c8f7e42b28" }

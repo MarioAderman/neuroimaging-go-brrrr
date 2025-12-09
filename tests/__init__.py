@@ -1,1 +1,1 @@
-"""Tests for hf_bids_nifti package."""
+"""Tests for bids_hub package."""
