@@ -133,6 +133,7 @@ file_table = build_arc_file_table(Path("data/openneuro/ds004884"))
 | `session_id` | `str` | BIDS session ID (e.g., `"ses-1"`) |
 | `t1w` | `str \| None` | Absolute path to T1w NIfTI |
 | `t2w` | `str \| None` | Absolute path to T2w NIfTI |
+| `t2w_acquisition` | `str \| None` | T2w acquisition type (`space_2x`, `space_no_accel`, `turbo_spin_echo`) |
 | `flair` | `str \| None` | Absolute path to FLAIR NIfTI |
 | `bold` | `list[str] \| None` | List of paths to BOLD fMRI NIfTIs |
 | `dwi` | `list[str] \| None` | List of paths to DWI NIfTIs |
@@ -153,7 +154,7 @@ Get the HuggingFace Features schema for ARC.
 from bids_hub import get_arc_features
 
 features = get_arc_features()
-# Returns Features with 13 columns (7 imaging, 4 demographic, 2 identifiers)
+# Returns Features with 14 columns (7 imaging, 1 acquisition type, 4 demographic, 2 identifiers)
 ```
 
 **Returns:** `datasets.Features`
