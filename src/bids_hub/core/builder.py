@@ -23,6 +23,11 @@ logger = logging.getLogger(__name__)
 # dedup check can take longer than 10s to respond, causing ReadTimeout errors.
 # This increases the timeout to 5 minutes.
 # See: https://github.com/huggingface/datasets/issues/7400
+#
+# NOTE: This timeout workaround modifies a global constant (hf_constants.DEFAULT_REQUEST_TIMEOUT)
+# and is NOT safe for concurrent uploads. Ensure push_dataset_to_hub is called serially.
+# The timeout is restored in a finally block, but race conditions could occur if multiple
+# uploads run simultaneously.
 _HF_UPLOAD_TIMEOUT = 300  # 5 minutes
 
 
@@ -258,7 +263,12 @@ def push_dataset_to_hub(
 
         logger.info("Upload complete! Cleaning up staging directory...")
         # Clean up staging directory after successful upload
-        shutil.rmtree(staging_dir)
+        try:
+            shutil.rmtree(staging_dir)
+            logger.info(f"Staging directory removed: {staging_dir}")
+        except Exception as e:
+            logger.warning(f"Failed to remove staging directory {staging_dir}: {e}")
+            logger.warning("You may need to manually remove it.")
 
     finally:
         # Always restore original timeout, even on failure
