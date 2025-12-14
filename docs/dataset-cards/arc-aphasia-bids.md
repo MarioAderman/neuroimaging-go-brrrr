@@ -16,7 +16,7 @@ tags:
   - diffusion
   - fMRI
 size_categories:
-  - 100K<n<1M
+  - n<1K
 ---
 
 # Aphasia Recovery Cohort (ARC)
@@ -31,14 +31,16 @@ The Aphasia Recovery Cohort (ARC) is a large-scale, longitudinal neuroimaging da
 |--------|-------|
 | Subjects | 230 |
 | Sessions | 902 |
-| T1-weighted scans | 444 sessions |
-| T2-weighted scans | 440 sessions |
-| FLAIR scans | 233 sessions |
-| BOLD fMRI (naming40 task) | 606 sessions (894 runs) |
-| BOLD fMRI (resting state) | 337 sessions (508 runs) |
+| T1-weighted scans | 441 sessions* |
+| T2-weighted scans | 439 sessions* |
+| FLAIR scans | 231 sessions* |
+| BOLD fMRI (naming40 task) | 750 sessions (894 runs) |
+| BOLD fMRI (resting state) | 498 sessions (508 runs) |
 | Diffusion (DWI) | 613 sessions (2,089 runs) |
 | Single-band reference | 88 sessions (322 runs) |
 | Expert lesion masks | 228 |
+
+*Sessions with exactly one scan. Sessions with multiple runs of the same structural modality are set to `None` to avoid ambiguity (3 T1w, 1 T2w, 2 FLAIR sessions affected).
 
 - **Source:** [OpenNeuro ds004884](https://openneuro.org/datasets/ds004884)
 - **Paper:** [Gibson et al., Scientific Data 2024](https://doi.org/10.1038/s41597-024-03819-7)
