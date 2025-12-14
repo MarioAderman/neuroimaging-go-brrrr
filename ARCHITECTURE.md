@@ -4,6 +4,26 @@
 
 ---
 
+## Installation
+
+**This package is NOT on PyPI.** Install as a git dependency:
+
+```bash
+# Using uv (recommended)
+uv add git+https://github.com/The-Obstacle-Is-The-Way/neuroimaging-go-brrrr.git
+
+# Using pip
+pip install git+https://github.com/The-Obstacle-Is-The-Way/neuroimaging-go-brrrr.git
+
+# In pyproject.toml (for downstream projects)
+[project]
+dependencies = [
+    "neuroimaging-go-brrrr @ git+https://github.com/The-Obstacle-Is-The-Way/neuroimaging-go-brrrr.git",
+]
+```
+
+---
+
 ## What This Project Is
 
 ```
@@ -11,8 +31,8 @@
 |                    THE HUGGINGFACE ECOSYSTEM FOR NEUROIMAGING               |
 +-----------------------------------------------------------------------------+
 
-    pip install datasets              pip install neuroimaging-go-brrrr
-    -----------------------           ---------------------------------
+    pip install datasets              uv add git+https://github.com/...
+    -----------------------           ------------------------------------
     Standard HuggingFace              THIS PROJECT: Domain extension
     - Images, text, audio             - NIfTI file support (.nii.gz)
     - Parquet/Arrow storage           - BIDS directory structure
@@ -33,7 +53,7 @@
                      We EXTEND this, we don't fork it
 
 +-----------------------------------------------------------------------------+
-|  KEY INSIGHT: When you pip install this package, you get:                   |
+|  KEY INSIGHT: When you install this package, you get:                       |
 |  - datasets (the standard HuggingFace library)                              |
 |  - huggingface-hub (for Hub interactions)                                   |
 |  - bids_hub module (our neuroimaging-specific extensions)                   |
