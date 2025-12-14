@@ -356,6 +356,7 @@ class TestPushDatasetToHub:
 
     def test_push_dataset_to_hub_custom_sharded_logic(self, temp_nifti_dir: Path) -> None:
         """Ensure custom sharding logic is triggered when num_shards > 1."""
+        import shutil
         from unittest.mock import patch
 
         import pyarrow as pa
@@ -381,6 +382,11 @@ class TestPushDatasetToHub:
                 ],
             }
         ).cast(features)
+
+        # Clean up any leftover staging dir from previous test runs
+        staging_dir = Path("./hf_upload_staging")
+        if staging_dir.exists():
+            shutil.rmtree(staging_dir)
 
         # Mock HfApi and pq.write_table
         with (
@@ -412,5 +418,5 @@ class TestPushDatasetToHub:
             # Verify pq.write_table called twice
             assert mock_write.call_count == 2
 
-            # Verify upload_file called (at least twice for shards)
-            assert mock_api_instance.upload_file.call_count >= 2
+            # Verify upload_large_folder called (bulk upload instead of per-shard)
+            mock_api_instance.upload_large_folder.assert_called_once()
