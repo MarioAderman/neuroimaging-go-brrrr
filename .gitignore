@@ -32,3 +32,8 @@ ds*/
 
 # HuggingFace cache
 .cache/huggingface/
+
+# HuggingFace upload staging directory
+# Created by push_dataset_to_hub() for bulk upload with upload_large_folder()
+# Persists to allow resume after crashes - cleaned up after successful upload
+hf_upload_staging/

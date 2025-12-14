@@ -1,4 +1,4 @@
-# ISSUE-001: HuggingFace Hub Commit Rate Limit
+# BUG-003: HuggingFace Hub Commit Rate Limit
 
 ## Status: FIXED
 
