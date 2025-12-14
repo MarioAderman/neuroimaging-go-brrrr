@@ -69,7 +69,7 @@ This PR also includes the timeout fix from BUG-002:
 ## References
 
 - HuggingFace error message suggests using `upload-large-folder`
-- Commit: `[pending]`
+- Commit: `6af639f` (fix(upload): use upload_large_folder to avoid 320/hour rate limit)
 
 ## Date
 
