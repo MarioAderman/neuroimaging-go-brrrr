@@ -13,6 +13,9 @@ __pycache__/
 .coverage
 htmlcov/
 
+# Logs
+*.log
+
 # ============================================
 # Neuroimaging / BIDS / NIfTI specific
 # ============================================
