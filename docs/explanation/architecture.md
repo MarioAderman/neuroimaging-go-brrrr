@@ -22,6 +22,7 @@ src/bids_hub/
 └── validation/              # Per-dataset validation
     ├── __init__.py
     ├── base.py              # ValidationResult, ValidationCheck framework
+    ├── hf.py                # HuggingFace dataset validation helpers
     ├── arc.py               # ARC validation rules
     └── isles24.py           # ISLES24 validation rules
 ```
