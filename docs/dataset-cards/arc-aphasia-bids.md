@@ -28,12 +28,13 @@ Multimodal neuroimaging dataset of 230 chronic stroke patients with aphasia.
 
 | Modality | Count | Description |
 |----------|-------|-------------|
-| T1w | 441 | T1-weighted structural MRI |
-| T2w | 447 | T2-weighted structural MRI |
-| FLAIR | 235 | Fluid-attenuated inversion recovery |
-| BOLD | 850 | Functional MRI |
-| DWI | 613 | Diffusion-weighted imaging |
-| Lesion Masks | 230 | Expert-drawn stroke lesion segmentations |
+| T1w | 441 | T1-weighted structural MRI (unambiguous sessions) |
+| T2w | 439 | T2-weighted structural MRI (unambiguous sessions) |
+| FLAIR | 231 | Fluid-attenuated inversion recovery (unambiguous sessions) |
+| BOLD | 850 | Functional MRI sessions (1,402 runs) |
+| DWI | 613 | Diffusion-weighted imaging sessions (2,089 runs) |
+| SBRef | 88 | Single-band reference sessions (322 runs) |
+| Lesion Masks | 228 | Expert-drawn stroke lesion segmentations |
 
 ## Usage
 
@@ -47,6 +48,18 @@ example = ds[0]
 print(example["subject_id"])  # "sub-M2001"
 print(example["t1w"])         # NIfTI array
 print(example["wab_aq"])      # Aphasia severity score
+
+# Filter by T2w acquisition type (for paper replication)
+# See: https://arxiv.org/abs/2503.05531 (MeshNet paper)
+space_only = ds.filter(
+    lambda x: (
+        x["lesion"] is not None
+        and x["t2w"] is not None
+        and x["t2w_acquisition"] in ("space_2x", "space_no_accel")
+    )
+)
+# Returns 222 SPACE samples (115 space_2x + 107 space_no_accel)
+# Excludes: 5 TSE samples, 1 multi-T2w session (sub-M2105/ses-964)
 ```
 
 ## Citation
