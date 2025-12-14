@@ -1,12 +1,27 @@
 # Architecture
 
-> **neuroimaging-go-brrrr** is the canonical HuggingFace extension for NIfTI/BIDS neuroimaging datasets.
+> **neuroimaging-go-brrrr** is the source-of-truth pipeline for publishing BIDS/NIfTI neuroimaging datasets (e.g. `hugging-science/*`) to the HuggingFace Hub using the standard `datasets` library.
 
 ---
 
+## Positioning (Read This First)
+
+- **Not a fork**: we do not maintain a fork/branch of `huggingface/datasets`.
+- **Not blocked on upstream PRs**: we may upstream fixes, but this repo ships the production pipeline today (including workarounds + pinned deps when needed).
+- **Produces standard Hub datasets**: output is a normal Hub dataset repo (Parquet shards + `dataset_info.json`).
+- **Consumption uses standard tooling**: downstream users load published datasets with `datasets.load_dataset(...)` (+ `nibabel` to decode NIfTI).
+- **Not affiliated with HuggingFace**: independent project built on their open-source ecosystem.
+
+## Terminology (Avoid “datasets” Confusion)
+
+- **`datasets` (library)**: the HuggingFace Python package (`pip install datasets`).
+- **`huggingface/datasets` (repo)**: the upstream GitHub repository that publishes the `datasets` library.
+- **Hub dataset repo**: a dataset on the Hub like `hugging-science/arc-aphasia-bids` (data + metadata), loaded via `datasets.load_dataset(...)`.
+- **This repo**: a separate package (`bids_hub`, CLI `bids-hub`) that builds/uploads Hub dataset repos from local BIDS directories.
+
 ## Installation
 
-**This package is NOT on PyPI.** Install as a git dependency:
+**This package is NOT on PyPI**, so `pip install neuroimaging-go-brrrr` will not work. Install as a git dependency:
 
 ```bash
 # Using uv (recommended)
@@ -22,6 +37,8 @@ dependencies = [
 ]
 ```
 
+**Important (uploading/production):** reliable NIfTI embedding currently requires a git-pinned `datasets` build (see `pyproject.toml` `[tool.uv.sources]` and `docs/explanation/why-uploads-fail.md`).
+
 ---
 
 ## What This Project Is
@@ -34,7 +51,7 @@ dependencies = [
     pip install datasets              uv add git+https://github.com/...
     -----------------------           ------------------------------------
     Standard HuggingFace              THIS PROJECT: Domain extension
-    - Images, text, audio             - NIfTI file support (.nii.gz)
+    - Images, text, audio             - BIDS + NIfTI dataset pipelines
     - Parquet/Arrow storage           - BIDS directory structure
     - Hub integration                 - Neuroimaging validation
                                       - Upload utilities for BIDS->Hub
@@ -43,7 +60,7 @@ dependencies = [
     |   huggingface/datasets  |       |   neuroimaging-go-brrrr          |
     |   (upstream library)    | <---- |   (bids_hub module)              |
     |                         |       |                                  |
-    |   - Dataset             |       |   - Nifti() feature type         |
+    |   - Dataset             |       |   - Uses datasets.Nifti()        |
     |   - Features            |       |   - BIDS file discovery          |
     |   - Hub upload/download |       |   - Parquet sharding workarounds |
     +-------------------------+       +----------------------------------+
@@ -58,8 +75,8 @@ dependencies = [
 |  - huggingface-hub (for Hub interactions)                                   |
 |  - bids_hub module (our neuroimaging-specific extensions)                   |
 |                                                                             |
-|  We are NOT waiting on PRs to huggingface/datasets.                         |
-|  We ARE the canonical extension for neuroimaging.                           |
+|  We are NOT a fork or a branch of huggingface/datasets.                     |
+|  We ship neuroimaging/BIDS production tooling on top of it.                 |
 +-----------------------------------------------------------------------------+
 ```
 
@@ -67,14 +84,14 @@ dependencies = [
 
 ## The Two Pipelines
 
-This project handles both **production** (uploading) and enables **consumption** (downloading).
+This repo provides the **production** pipeline (uploading). The resulting Hub datasets are consumed with the standard `datasets` library.
 
 ### Pipeline 1: Production (Uploading to HuggingFace)
 
 ```
 +---------------+     +----------------------+     +---------------------+
-|  Local BIDS   |     |  neuroimaging-go-    |     |   HuggingFace Hub   |
-|  Directory    | --> |  brrrr (bids_hub)    | --> |   hugging-science/  |
+|  Local BIDS   |     |  bids_hub (this repo)|     |   HuggingFace Hub   |
+|  Directory    | --> |                      | --> |   hugging-science/  |
 |  (OpenNeuro)  |     |                      |     |   arc-aphasia-bids  |
 +---------------+     |  - build_*_file_     |     +---------------------+
                       |    table()           |
@@ -100,9 +117,9 @@ uv run bids-hub isles24 build data/zenodo/isles24/train --no-dry-run
 
 ```
 +---------------------+     +----------------------+     +-------------------+
-|   HuggingFace Hub   |     |  datasets.load_      |     |  Your ML Code     |
-|   hugging-science/  | --> |  dataset()           | --> |  - Training       |
-|   arc-aphasia-bids  |     |  (standard HF)       |     |  - Inference      |
+|   HuggingFace Hub   |     |  load_dataset()      |     |  Your ML Code     |
+|   hugging-science/  | --> |  (standard HF)       | --> |  - Training       |
+|   arc-aphasia-bids  |     |                      |     |  - Inference      |
 +---------------------+     +----------------------+     +-------------------+
 
    Data Flow:
@@ -111,6 +128,8 @@ uv run bids-hub isles24 build data/zenodo/isles24/train --no-dry-run
    3. Nifti() columns automatically decode to nibabel objects
    4. Standard Dataset API (filter, map, batch) works normally
 ```
+
+Note: consumption does not require installing this repo; `datasets` + `nibabel` is sufficient.
 
 **Python for consumption:**
 ```python
@@ -126,38 +145,47 @@ print(example["t1w"])         # nibabel.Nifti1Image object
 
 ## Dependency Relationship
 
+Consumers can load published Hub datasets with just `datasets` + `nibabel`. Downstream projects can optionally depend on this repo for shared schemas, validation, and the `bids-hub` CLI.
+
 ```
 +-----------------------------------------------------------------------------+
 |                         PACKAGE DEPENDENCIES                                |
 +-----------------------------------------------------------------------------+
 
-   Downstream Consumer (e.g., arc-meshchop)
-        |
-        |  pip install neuroimaging-go-brrrr
-        v
-   +-----------------------------------+
-   |   neuroimaging-go-brrrr           |
-   |   (this repo)                     |
-   |   - bids_hub module               |
-   |   - CLI: bids-hub                 |
-   +-----------------------------------+
-        |
-        |  automatically installs
-        v
-   +-----------------------------------+
-   |   huggingface/datasets            |
-   |   (upstream library)              |
-   |   - Dataset, Features, Nifti      |
-   |   - Hub upload/download           |
-   +-----------------------------------+
-        |
-        |  automatically installs
-        v
-   +-----------------------------------+
-   |   huggingface/huggingface_hub     |
-   |   - HfApi                         |
-   |   - upload_large_folder           |
-   +-----------------------------------+
+  Minimal consumption (load from the Hub)
+    pip install datasets nibabel
+            |
+            v
+      +-----------------------------------+
+      |   huggingface/datasets            |
+      |   - load_dataset(...)             |
+      |   - Nifti() decode (via nibabel)  |
+      +-----------------------------------+
+
+  Optional shared tooling (schemas/validation/CLI)
+    uv add git+https://github.com/The-Obstacle-Is-The-Way/neuroimaging-go-brrrr.git
+            |
+            v
+      +-----------------------------------+
+      |   neuroimaging-go-brrrr           |
+      |   (this repo)                     |
+      |   - bids_hub module               |
+      |   - CLI: bids-hub                 |
+      +-----------------------------------+
+            |
+            v
+      +-----------------------------------+
+      |   huggingface/datasets            |
+      |   - Dataset, Features, Nifti      |
+      |   - Hub upload/download           |
+      +-----------------------------------+
+            |
+            v
+      +-----------------------------------+
+      |   huggingface/huggingface_hub     |
+      |   - HfApi                         |
+      |   - upload_large_folder           |
+      +-----------------------------------+
 ```
 
 ---
@@ -226,7 +254,7 @@ src/bids_hub/
    +-----------------------------------+
          |
          |  push_dataset_to_hub()
-         |  - Shard dataset (1 per session)
+         |  - Shard dataset (often 1 per example)
          |  - Embed NIfTI bytes into Parquet
          |  - Upload via upload_large_folder()
          v
@@ -245,7 +273,7 @@ src/bids_hub/
 ### The Problem
 
 HuggingFace `datasets` natively supports images (JPEG, PNG), audio (WAV, MP3), and text.
-It does NOT natively handle neuroimaging formats:
+It now includes an experimental `Nifti()` feature type, but it does not provide an end-to-end BIDS pipeline:
 
 | Standard ML | Neuroimaging (BIDS) |
 |-------------|---------------------|
@@ -257,12 +285,11 @@ It does NOT natively handle neuroimaging formats:
 
 ### The Solution
 
-We extend HuggingFace datasets with:
+We build on top of HuggingFace `datasets` with:
 
-1. **Nifti() Feature Type**: Native support for .nii.gz files
-2. **BIDS File Discovery**: Automatic parsing of BIDS directory structures
-3. **Sharded Upload**: Memory-efficient upload of large neuroimaging datasets
-4. **Validation Framework**: Pre-upload checks against expected counts
+1. **BIDS file discovery + schema**: map BIDS directories into `datasets.Features` using `datasets.Nifti()`
+2. **Operational sharded uploads**: predictable memory usage + Hub upload reliability for hundreds of large files
+3. **Validation framework**: pre-upload checks against expected counts and common corruption indicators
 
 ---
 
@@ -273,6 +300,7 @@ We include workarounds for upstream bugs that affect neuroimaging use cases:
 | Bug | Workaround | Location |
 |-----|------------|----------|
 | Sequence(Nifti()) crashes during shard | Pandas round-trip | `core/builder.py` |
+| PyPI `datasets` embeds empty NIfTIs | Pin `datasets` to git | `pyproject.toml` |
 | Upload timeout on large files | Extended timeout | `core/builder.py` |
 | Rate limit on many shards | `upload_large_folder()` | `core/builder.py` |
 
