@@ -43,7 +43,7 @@ dependencies = [
 
 ## What This Project Is
 
-```
+```text
 +-----------------------------------------------------------------------------+
 |                    THE HUGGINGFACE ECOSYSTEM FOR NEUROIMAGING               |
 +-----------------------------------------------------------------------------+
@@ -88,7 +88,7 @@ This repo provides the **production** pipeline (uploading). The resulting Hub da
 
 ### Pipeline 1: Production (Uploading to HuggingFace)
 
-```
+```text
 +---------------+     +----------------------+     +---------------------+
 |  Local BIDS   |     |  bids_hub (this repo)|     |   HuggingFace Hub   |
 |  Directory    | --> |                      | --> |   hugging-science/  |
@@ -115,7 +115,7 @@ uv run bids-hub isles24 build data/zenodo/isles24/train --no-dry-run
 
 ### Pipeline 2: Consumption (Training from HuggingFace)
 
-```
+```text
 +---------------------+     +----------------------+     +-------------------+
 |   HuggingFace Hub   |     |  load_dataset()      |     |  Your ML Code     |
 |   hugging-science/  | --> |  (standard HF)       | --> |  - Training       |
@@ -147,7 +147,7 @@ print(example["t1w"])         # nibabel.Nifti1Image object
 
 Consumers can load published Hub datasets with just `datasets` + `nibabel`. Downstream projects can optionally depend on this repo for shared schemas, validation, and the `bids-hub` CLI.
 
-```
+```text
 +-----------------------------------------------------------------------------+
 |                         PACKAGE DEPENDENCIES                                |
 +-----------------------------------------------------------------------------+
@@ -192,7 +192,7 @@ Consumers can load published Hub datasets with just `datasets` + `nibabel`. Down
 
 ## Module Structure
 
-```
+```text
 src/bids_hub/
 |-- __init__.py          # Public API re-exports
 |-- cli.py               # Typer CLI (bids-hub command)
@@ -223,7 +223,7 @@ src/bids_hub/
 
 ## Data Flow Detail
 
-```
+```text
 +-----------------------------------------------------------------------------+
 |                              DATA FLOW                                      |
 +-----------------------------------------------------------------------------+

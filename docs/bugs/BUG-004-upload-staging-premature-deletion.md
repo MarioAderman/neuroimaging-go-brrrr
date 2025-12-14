@@ -4,7 +4,7 @@
 
 ## Environment
 
-```
+```text
 Python: 3.13.5
 huggingface_hub: 1.2.1
 datasets: 4.4.2.dev0
