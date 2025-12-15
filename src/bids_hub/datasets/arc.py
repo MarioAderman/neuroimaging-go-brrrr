@@ -236,11 +236,14 @@ def build_arc_file_table(bids_root: Path) -> pd.DataFrame:
         for session_dir in session_dirs:
             session_id = session_dir.name  # e.g., "ses-1"
 
-            # Find structural modalities in anat/ (single file per session)
-            t1w_path = find_single_nifti(session_dir / "anat", "*_T1w.nii.gz")
-            t2w_path = find_single_nifti(session_dir / "anat", "*_T2w.nii.gz")
-            t2w_acquisition = _extract_acquisition_type(t2w_path)
-            flair_path = find_single_nifti(session_dir / "anat", "*_FLAIR.nii.gz")
+            # Find structural modalities in anat/ (can have multiple runs)
+            t1w_paths = find_all_niftis(session_dir / "anat", "*_T1w.nii.gz")
+            t2w_paths = find_all_niftis(session_dir / "anat", "*_T2w.nii.gz")
+
+            # Use first T2w for acquisition type (all runs in a session use same sequence)
+            t2w_acquisition = _extract_acquisition_type(t2w_paths[0]) if t2w_paths else None
+
+            flair_paths = find_all_niftis(session_dir / "anat", "*_FLAIR.nii.gz")
 
             # Find functional modalities in func/ (ALL runs) - split by task
             # NOTE: BIDS is case-sensitive; verified SSOT has only lowercase task names
@@ -277,10 +280,10 @@ def build_arc_file_table(bids_root: Path) -> pd.DataFrame:
                 {
                     "subject_id": subject_id,
                     "session_id": session_id,
-                    "t1w": t1w_path,
-                    "t2w": t2w_path,
+                    "t1w": t1w_paths,
+                    "t2w": t2w_paths,
                     "t2w_acquisition": t2w_acquisition,
-                    "flair": flair_path,
+                    "flair": flair_paths,
                     "bold_naming40": bold_naming40,  # List of paths (naming40 task)
                     "bold_rest": bold_rest,  # List of paths (rest task)
                     "dwi": dwi_paths,  # List of paths (all runs)
@@ -352,11 +355,11 @@ def get_arc_features() -> Features:
         {
             "subject_id": Value("string"),
             "session_id": Value("string"),
-            # Structural: single file per session
-            "t1w": Nifti(),
-            "t2w": Nifti(),
+            # Structural: multiple runs per session
+            "t1w": Sequence(Nifti()),
+            "t2w": Sequence(Nifti()),
             "t2w_acquisition": Value("string"),
-            "flair": Nifti(),
+            "flair": Sequence(Nifti()),
             # Functional/Diffusion: multiple runs per session
             "bold_naming40": Sequence(Nifti()),
             "bold_rest": Sequence(Nifti()),
