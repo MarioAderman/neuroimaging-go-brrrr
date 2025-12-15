@@ -200,7 +200,7 @@ space_only = ds.filter(
         and x["t2w_acquisition"] in ("space_2x", "space_no_accel")
     )
 )
-# Returns 222 SPACE samples (115 space_2x + 107 space_no_accel)
+# Returns 223 SPACE samples (115 space_2x + 108 space_no_accel)
 
 # Clinical metadata analysis
 import pandas as pd
@@ -276,6 +276,17 @@ This dataset is released under **CC0 1.0 Universal (Public Domain)**. You can co
 Thanks to [@The-Obstacle-Is-The-Way](https://github.com/The-Obstacle-Is-The-Way) for converting this dataset to HuggingFace format with native `Nifti()` feature support.
 
 ## Changelog
+
+### v4 (December 2025) - Pending
+
+- **BREAKING:** `t1w`, `t2w`, `flair` changed from `Nifti()` to `Sequence(Nifti())` for full data fidelity
+- **FIX:** 6 sessions with multiple structural runs now include all files (previously set to `None`)
+- **NOTE:** Most sessions have exactly 1 structural scan; access via `session["t2w"][0]`
+
+### v3 (December 2025)
+
+- **RETRACTED:** Attempted fix for 222 → 223 SPACE samples was incorrect diagnosis
+- **NOTE:** The missing sample is caused by a schema design flaw (see v4 fix above), not upload issues
 
 ### v2 (December 2025)
 
